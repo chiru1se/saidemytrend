@@ -1,50 +1,35 @@
 pipeline {
-
-    // Specify the agent to run the pipeline
     agent any
-    // Set environment variables for the pipeline
+    
     environment {
         PATH = "/opt/maven/bin:$PATH"
     }
-
-    // Define the stages of the pipeline
+    
     stages {
-        // Stage for building the project
-        stage("build") {
+        stage('Checkout') {
             steps {
-                // Log message to indicate build start
-                echo "----------- build started ----------"
-                // Run Maven clean and deploy commands, skipping tests
-                sh 'mvn clean deploy -Dmaven.test.skip=true'
-                // Log message to indicate build completion
-                echo "----------- build completed ----------"
+                git branch: 'main', url: 'https://github.com/chiru1se/saidemytrend.git'
             }
         }
-
-        // Stage for running unit tests
-        stage("test") {
+    
+        stage('Build') {
             steps {
-                // Log message to indicate unit test start
-                echo "----------- unit test started ----------"
-                // Run Maven Surefire report
-                sh 'mvn surefire-report:report'
-                // Log message to indicate unit test completion
-                echo "----------- unit test completed ----------"
+                echo "----------Build Started----------"
+                sh 'mvn clean deploy'
+                echo "----------Build Completed----------"
             }
         }
-
-        // Stage for SonarQube analysis
-        stage('SonarQube analysis') {
+        
+        stage('SonarQube Analysis') {
             environment {
-                // Set the SonarQube scanner tool
                 scannerHome = tool 'saidemy-sonar-scanner'
             }
             steps {
-                // Execute SonarQube analysis within the SonarQube environment
-                withSonarQubeEnv('saidemy-sonarqube-server') {
+                withSonarQubeEnv(saidemy-sonar-scanner){
                     sh "${scannerHome}/bin/sonar-scanner"
-                }
+                }    
             }
         }
     }
 }
+
